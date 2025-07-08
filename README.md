@@ -1,2 +1,0 @@
-# wallpaper-api
-wallpapers-api
