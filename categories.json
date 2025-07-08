@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Nature",
+    "image": "https://example.com/thumbnails/nature.png",
+    "file": "categories/nature.json"
+  },
+  {
+    "name": "Cars",
+    "image": "https://example.com/thumbnails/cars.png",
+    "file": "categories/cars.json"
+  }
+]

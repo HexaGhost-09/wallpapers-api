@@ -1,1 +1,12 @@
-
+[
+  {
+    "name": "Sunset Lake",
+    "image": "https://example.com/wallpapers/nature/sunset-lake.jpg",
+    "download": "https://example.com/wallpapers/nature/sunset-lake.jpg"
+  },
+  {
+    "name": "Mountain View",
+    "image": "https://example.com/wallpapers/nature/mountain-view.jpg",
+    "download": "https://example.com/wallpapers/nature/mountain-view.jpg"
+  }
+]
