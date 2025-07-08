@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
 serve(async (req) => {
   const url = new URL(req.url);
+  console.log("Request Path:", url.pathname);  // 👈 add this line
 
   if (url.pathname === "/categories.json") {
     return await serveFile(req, "./categories.json");
