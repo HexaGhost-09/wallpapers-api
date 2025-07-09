@@ -42,10 +42,16 @@ serve(async (req) => {
     return await serveFile(req, "./data/categories.json");
   }
 
+  // Serve a specific category's wallpapers
   const categoryMatch = url.pathname.match(/^\/categories\/([\w-]+)$/);
   if (categoryMatch) {
     const category = categoryMatch[1];
     return await serveFile(req, `./data/categories/${category}.json`);
+  }
+
+  // NEW: Serve space.json at /spaces
+  if (url.pathname === "/spaces") {
+    return await serveFile(req, "./data/space.json");
   }
 
   return new Response("Not Found", { status: 404 });
