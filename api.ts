@@ -27,8 +27,11 @@ serve(async (req) => {
       }
     }
 
-    // 3. Sort by timestamp (newest first)
-    allWallpapers.sort((a, b) => b.timestamp - a.timestamp);
+    // 3. Sort by timestamp (newest first, ISO 8601 compatible)
+    allWallpapers.sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
 
     return new Response(JSON.stringify(allWallpapers), {
       headers: { "Content-Type": "application/json" }

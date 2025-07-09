@@ -1,8 +1,16 @@
 [
   {
     "id": "wall2",
+    "category": "cars",
     "title": "Red Sports Car",
     "image": "https://example.com/wallpapers/cars/red-car.jpg",
-    "timestamp": 1720600000
+    "timestamp": "2025-07-08T20:00:00Z"
+  },
+  {
+    "id": "wall4",
+    "category": "cars",
+    "title": "Electric Blue Coupe",
+    "image": "https://example.com/wallpapers/cars/electric-blue.jpg",
+    "timestamp": "2025-07-09T09:07:44Z"
   }
 ]

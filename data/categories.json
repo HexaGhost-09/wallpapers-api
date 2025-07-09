@@ -2,13 +2,19 @@
   {
     "id": "nature",
     "title": "Nature",
-    "thumbnail": "https://example.com/thumbnails/nature.png",
+    "thumbnail": "https://images2.imgbox.com/18/36/fz4hVdsS_o.jpeg",
     "details": "Beautiful landscapes and natural scenes."
   },
   {
     "id": "cars",
     "title": "Cars",
-    "thumbnail": "https://example.com/thumbnails/cars.png",
+    "thumbnail": "https://images2.imgbox.com/8f/7f/kSlS1oko_o.jpeg",
     "details": "Cool cars and automotive wallpapers."
+  },
+  {
+    "id": "space",
+    "title": "Space",
+    "thumbnail": "https://images2.imgbox.com/d8/ad/k86Ifjcb_o.jpeg",
+    "details": "Space Cosmos and Astronomy."
   }
 ]

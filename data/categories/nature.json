@@ -1,8 +1,16 @@
 [
   {
     "id": "wall1",
+    "category": "nature",
     "title": "Green Forest",
     "image": "https://example.com/wallpapers/nature/forest.jpg",
-    "timestamp": 1720500000
+    "timestamp": "2025-07-08T12:00:00Z"
+  },
+  {
+    "id": "wall3",
+    "category": "nature",
+    "title": "Mountain Lake",
+    "image": "https://example.com/wallpapers/nature/lake.jpg",
+    "timestamp": "2025-07-09T09:06:33Z"
   }
 ]
