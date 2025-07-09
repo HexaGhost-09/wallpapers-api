@@ -13,10 +13,16 @@ A simple Deno-powered API for wallpaper data.
 - `GET /categories/:category`  
   Returns all wallpapers in a category (newest first).
 
+- `GET /spaces`  
+  Returns all spaces data from `space.json`.
+
 ## Running the API
 
 ```sh
 deno run --allow-net --allow-read api.ts
 ```
 
-Data is stored in the `data/` directory as JSON files.
+Data is stored in the `data/` directory as JSON files.  
+- Categories: `data/categories.json`
+- Wallpapers for each category: `data/categories/{category}.json`
+- Spaces: `data/space.json`
