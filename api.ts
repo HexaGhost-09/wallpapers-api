@@ -1,11 +1,38 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { serveFile } from "https://deno.land/std@0.224.0/http/file_server.ts";
 
+// Utility to read and parse a JSON file
+async function readJson<T>(path: string): Promise<T> {
+  const data = await Deno.readTextFile(path);
+  return JSON.parse(data);
+}
+
 serve(async (req) => {
   const url = new URL(req.url);
 
   if (url.pathname === "/wallpapers") {
-    return await serveFile(req, "./data/wallpapers.json");
+    // 1. Read categories to get all category IDs
+    const categories = await readJson<Array<{id: string}>>("./data/categories.json");
+    let allWallpapers: any[] = [];
+
+    // 2. For each category, read its wallpapers
+    for (const cat of categories) {
+      try {
+        const wallpapers = await readJson<any[]>(`./data/categories/${cat.id}.json`);
+        // Optionally, add category info to each wallpaper
+        wallpapers.forEach(w => w.category = cat.id);
+        allWallpapers = allWallpapers.concat(wallpapers);
+      } catch {
+        // ignore if file does not exist
+      }
+    }
+
+    // 3. Sort by timestamp (newest first)
+    allWallpapers.sort((a, b) => b.timestamp - a.timestamp);
+
+    return new Response(JSON.stringify(allWallpapers), {
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   if (url.pathname === "/categories") {
