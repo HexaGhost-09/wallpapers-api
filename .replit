@@ -1,2 +1,7 @@
 [nix]
 channel = "stable-24_05"
+packages = ["deno"]
+
+[[ports]]
+localPort = 8000
+externalPort = 80

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "nature",
+    "title": "Nature",
+    "thumbnail": "https://example.com/thumbnails/nature.png",
+    "details": "Beautiful landscapes and natural scenes."
+  },
+  {
+    "id": "cars",
+    "title": "Cars",
+    "thumbnail": "https://example.com/thumbnails/cars.png",
+    "details": "Cool cars and automotive wallpapers."
+  }
+]
