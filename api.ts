@@ -49,9 +49,14 @@ serve(async (req) => {
     return await serveFile(req, `./data/categories/${category}.json`);
   }
 
-  // NEW: Serve space.json at /spaces
+  // Serve space.json at /spaces
   if (url.pathname === "/spaces") {
     return await serveFile(req, "./data/space.json");
+  }
+
+  // Serve anime.json at /anime
+  if (url.pathname === "/anime") {
+    return await serveFile(req, "./data/dmy/anime.json");
   }
 
   return new Response("Not Found", { status: 404 });
