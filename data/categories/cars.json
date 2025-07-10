@@ -1,16 +1,18 @@
 [
   {
-    "id": "wall2",
+    "id": "car1_view",
     "category": "cars",
-    "title": "Red Sports Car",
-    "image": "https://example.com/wallpapers/cars/red-car.jpg",
-    "timestamp": "2025-07-08T20:00:00Z"
+    "title": "Car View 1",
+    "image": "https://files.catbox.moe/yz6zeb.jpg",
+    "download": "https://files.catbox.moe/msnece.jpg",
+    "timestamp": "2025-07-10T15:39:37Z"
   },
   {
-    "id": "wall1",
+    "id": "car2_view",
     "category": "cars",
-    "title": "Electric Blue Coupe",
-    "image": "https://example.com/wallpapers/cars/electric-blue.jpg",
-    "timestamp": "2025-07-09T09:07:44Z"
+    "title": "Car View 2",
+    "image": "https://files.catbox.moe/8ei6eh.jpg",
+    "download": "https://files.catbox.moe/egccrj.jpg",
+    "timestamp": "2025-07-10T15:39:37Z"
   }
 ]

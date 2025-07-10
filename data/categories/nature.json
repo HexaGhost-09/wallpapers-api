@@ -1,16 +1,18 @@
 [
   {
-    "id": "wall2",
+    "id": "nature1_view",
     "category": "nature",
-    "title": "Mountain Lake",
-    "image": "https://example.com/wallpapers/nature/lake.jpg",
-    "timestamp": "2025-07-09T09:06:33Z"
+    "title": "Nature View 1",
+    "image": "https://i.ibb.co/Y7h1C3D9/IMG-20250710-151044-638.jpg",
+    "download": "https://i.ibb.co/4RqjNMFP/IMG-20250710-151049-326.jpg",
+    "timestamp": "2025-07-10T15:39:37Z"
   },
   {
-    "id": "wall1",
+    "id": "nature2_view",
     "category": "nature",
-    "title": "Green Forest",
-    "image": "https://example.com/wallpapers/nature/forest.jpg",
-    "timestamp": "2025-07-08T12:00:00Z"
+    "title": "Nature View 2",
+    "image": "https://i.ibb.co/DfQ20Pm5/IMG-20250710-151154-791.jpg",
+    "download": "https://i.ibb.co/jk65tFMV/IMG-20250710-151201-413.webp",
+    "timestamp": "2025-07-10T15:39:37Z"
   }
 ]

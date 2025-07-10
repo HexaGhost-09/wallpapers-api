@@ -19,7 +19,6 @@ serve(async (req) => {
     for (const cat of categories) {
       try {
         const wallpapers = await readJson<any[]>(`./data/categories/${cat.id}.json`);
-        // Optionally, add category info to each wallpaper
         wallpapers.forEach(w => w.category = cat.id);
         allWallpapers = allWallpapers.concat(wallpapers);
       } catch {
@@ -58,6 +57,36 @@ serve(async (req) => {
   if (url.pathname === "/anime") {
     return await serveFile(req, "./data/dmy/anime.json");
   }
+
+  // ----------- NEW: Download endpoint -----------
+  // GET /download/:id returns { download: "...", image: "...", title: "...", category: "..." }
+  const downloadMatch = url.pathname.match(/^\/download\/([\w-]+)$/);
+  if (downloadMatch) {
+    const id = downloadMatch[1];
+    const categories = await readJson<Array<{id: string}>>("./data/categories.json");
+    for (const cat of categories) {
+      try {
+        const wallpapers = await readJson<any[]>(`./data/categories/${cat.id}.json`);
+        const found = wallpapers.find(w => w.id === id);
+        if (found && found.download) {
+          return new Response(
+            JSON.stringify({
+              download: found.download,
+              image: found.image,
+              title: found.title,
+              category: cat.id
+            }),
+            { headers: { "Content-Type": "application/json" } }
+          );
+        }
+      } catch {}
+    }
+    return new Response(
+      JSON.stringify({ error: "Wallpaper not found or no download available" }),
+      { status: 404, headers: { "Content-Type": "application/json" } }
+    );
+  }
+  // ----------------------------------------------
 
   return new Response("Not Found", { status: 404 });
 });

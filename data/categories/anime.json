@@ -1,16 +1,18 @@
 [
   {
-    "id": "wall2",
+    "id": "anime1_view",
     "category": "anime",
-    "title": "Mountain Lake",
-    "image": "https://example.com/wallpapers/nature/lake.jpg",
-    "timestamp": "2025-07-09T09:06:33Z"
+    "title": "Anime View 1",
+    "image": "https://files.catbox.moe/ctlvfg.jpg",
+    "download": "https://files.catbox.moe/334k9q.jpg",
+    "timestamp": "2025-07-10T15:39:37Z"
   },
   {
-    "id": "wall1",
+    "id": "anime2_view",
     "category": "anime",
-    "title": "Green Forest",
-    "image": "https://example.com/wallpapers/nature/forest.jpg",
-    "timestamp": "2025-07-08T12:00:00Z"
+    "title": "Anime View 2",
+    "image": "https://files.catbox.moe/ncgp4u.jpg",
+    "download": "https://files.catbox.moe/i8k1eb.jpg",
+    "timestamp": "2025-07-10T15:39:37Z"
   }
 ]
