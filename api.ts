@@ -10,12 +10,11 @@ async function readJson<T>(path: string): Promise<T> {
 serve(async (req) => {
   const url = new URL(req.url);
 
+  // Get all wallpapers in all categories (newest first)
   if (url.pathname === "/wallpapers") {
-    // 1. Read categories to get all category IDs
     const categories = await readJson<Array<{id: string}>>("./data/categories.json");
     let allWallpapers: any[] = [];
 
-    // 2. For each category, read its wallpapers
     for (const cat of categories) {
       try {
         const wallpapers = await readJson<any[]>(`./data/categories/${cat.id}.json`);
@@ -26,7 +25,6 @@ serve(async (req) => {
       }
     }
 
-    // 3. Sort by timestamp (newest first, ISO 8601 compatible)
     allWallpapers.sort(
       (a, b) =>
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -37,29 +35,24 @@ serve(async (req) => {
     });
   }
 
+  // Get all categories
   if (url.pathname === "/categories") {
     return await serveFile(req, "./data/categories.json");
   }
 
-  // Serve a specific category's wallpapers
+  // Get wallpapers for a specific category
   const categoryMatch = url.pathname.match(/^\/categories\/([\w-]+)$/);
   if (categoryMatch) {
     const category = categoryMatch[1];
     return await serveFile(req, `./data/categories/${category}.json`);
   }
 
-  // Serve space.json at /spaces
-  if (url.pathname === "/spaces") {
-    return await serveFile(req, "./data/space.json");
-  }
-
-  // Serve anime.json at /anime
+  // Serve anime.json at /anime (legacy route, optional)
   if (url.pathname === "/anime") {
     return await serveFile(req, "./data/dmy/anime.json");
   }
 
-  // ----------- NEW: Download endpoint -----------
-  // GET /download/:id returns { download: "...", image: "...", title: "...", category: "..." }
+  // Download endpoint: /download/:id returns the download info for a wallpaper
   const downloadMatch = url.pathname.match(/^\/download\/([\w-]+)$/);
   if (downloadMatch) {
     const id = downloadMatch[1];
@@ -86,7 +79,7 @@ serve(async (req) => {
       { status: 404, headers: { "Content-Type": "application/json" } }
     );
   }
-  // ----------------------------------------------
 
+  // 404 for all other routes
   return new Response("Not Found", { status: 404 });
 });
