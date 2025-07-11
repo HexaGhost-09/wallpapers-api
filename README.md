@@ -1,139 +1,54 @@
-import { Application, Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
-import { join } from "https://deno.land/std@0.207.0/path/mod.ts";
+# Wallora-2 Wallpapers API
 
-const app = new Application();
-const router = new Router();
+A simple Deno-powered API for wallpaper data.
 
-// Helper to read all wallpapers from your JSON files
-async function getAllWallpapers(): Promise<any[]> {
-  const categoriesPath = join(Deno.cwd(), "data/categories");
-  const files = [
-    "anime.json",
-    "cars.json",
-    "nature.json",
-  ];
+## Categories
 
-  let wallpapers: any[] = [];
-  for (const file of files) {
-    try {
-      const filePath = join(categoriesPath, file);
-      const data = await Deno.readTextFile(filePath);
-      const json = JSON.parse(data);
-      // If your JSON is an array, push all; if object, adjust accordingly
-      if (Array.isArray(json)) {
-        wallpapers = wallpapers.concat(json);
-      } else if (json.wallpapers && Array.isArray(json.wallpapers)) {
-        wallpapers = wallpapers.concat(json.wallpapers);
-      }
-    } catch (_e) {
-      // Skip missing/corrupt files
-    }
-  }
-  return wallpapers;
-}
+- **nature** – Beautiful landscapes and natural scenes
+- **cars** – Cool cars and automotive wallpapers
+- **anime** – Anime-themed wallpapers and artwork
+- **space** – Space, cosmos, and astronomy
 
-// Helper to get categories list
-async function getCategories(): Promise<any> {
-  const categoriesFile = join(Deno.cwd(), "data/categories/categories.json");
-  try {
-    const data = await Deno.readTextFile(categoriesFile);
-    return JSON.parse(data);
-  } catch (_e) {
-    return [];
-  }
-}
+## API Endpoints
 
-// Logger middleware
-app.use(async (ctx, next) => {
-  await next();
-  const rt = ctx.response.headers.get("X-Response-Time");
-  console.log(`${ctx.request.method} ${ctx.request.url} - ${rt}`);
-});
+<details>
+<summary>Show/Hide all endpoints</summary>
 
-// Timing middleware
-app.use(async (ctx, next) => {
-  const start = Date.now();
-  await next();
-  const ms = Date.now() - start;
-  ctx.response.headers.set("X-Response-Time", `${ms}ms`);
-});
+- `GET /wallpapers`  
+  Returns all wallpapers (newest first).
 
-// CORS middleware
-app.use(async (ctx, next) => {
-  ctx.response.headers.set("Access-Control-Allow-Origin", "*");
-  ctx.response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  ctx.response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  await next();
-});
+- `GET /categories`  
+  Returns all categories (nature, cars, anime, space).
 
-app.use(router.routes());
-app.use(router.allowedMethods());
+- `GET /categories/nature`  
+  Returns all wallpapers in the nature category.
 
-// OPTIONS preflight (for all endpoints)
-router.options("/wallpapers", (ctx) => { ctx.response.status = 204; });
-router.options("/categories", (ctx) => { ctx.response.status = 204; });
-router.options("/health", (ctx) => { ctx.response.status = 204; });
+- `GET /categories/cars`  
+  Returns all wallpapers in the cars category.
 
-// Wallpapers endpoint (paginated, default 10 per page)
-router.get("/wallpapers", async (ctx) => {
-  const query = ctx.request.url.searchParams;
-  const page = parseInt(query.get("page") || "1");
-  const limit = parseInt(query.get("limit") || "10");
-  const safePage = Math.max(1, page);
-  const safeLimit = Math.max(1, limit);
+- `GET /categories/anime`  
+  Returns all wallpapers in the anime category.
 
-  const allWallpapers = await getAllWallpapers();
-  const startIndex = (safePage - 1) * safeLimit;
-  const endIndex = startIndex + safeLimit;
-  const paginatedWallpapers = allWallpapers.slice(startIndex, endIndex);
+- `GET /categories/space`  
+  Returns all wallpapers in the space category.
 
-  ctx.response.body = paginatedWallpapers;
-  ctx.response.type = "application/json";
-});
+</details>
 
-// Get all categories
-router.get("/categories", async (ctx) => {
-  const categories = await getCategories();
-  ctx.response.body = categories;
-  ctx.response.type = "application/json";
-});
+## Running the API
 
-// List wallpapers by category (paginated, default 10 per page)
-router.get("/wallpapers/:category", async (ctx) => {
-  const category = ctx.params.category;
-  const query = ctx.request.url.searchParams;
-  const page = parseInt(query.get("page") || "1");
-  const limit = parseInt(query.get("limit") || "10");
-  const safePage = Math.max(1, page);
-  const safeLimit = Math.max(1, limit);
+```sh
+deno run --allow-net --allow-read api.ts
+```
 
-  const filePath = join(Deno.cwd(), "data/categories", `${category}.json`);
-  try {
-    const data = await Deno.readTextFile(filePath);
-    let wallpapers: any[] = [];
-    const json = JSON.parse(data);
-    if (Array.isArray(json)) {
-      wallpapers = json;
-    } else if (json.wallpapers && Array.isArray(json.wallpapers)) {
-      wallpapers = json.wallpapers;
-    }
-    const startIndex = (safePage - 1) * safeLimit;
-    const endIndex = startIndex + safeLimit;
-    ctx.response.body = wallpapers.slice(startIndex, endIndex);
-    ctx.response.type = "application/json";
-  } catch (_e) {
-    ctx.response.status = 404;
-    ctx.response.body = { error: "Category not found" };
-    ctx.response.type = "application/json";
-  }
-});
+## Data Structure
 
-// Health check endpoint
-router.get("/health", (ctx) => {
-  ctx.response.body = { status: "ok" };
-  ctx.response.type = "application/json";
-});
+Data is stored in the `data/` directory as JSON files:
 
-const PORT = 8000;
-console.log(`Server running on http://localhost:${PORT}`);
-await app.listen({ port: PORT });
+- Categories: `data/categories.json`
+- Wallpapers for each category: `data/categories/{category}.json`
+
+## Contributing
+
+Feel free to open issues or PRs to suggest improvements or add new wallpaper categories!
+
+---
