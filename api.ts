@@ -31,9 +31,9 @@ async function getAllWallpapers(): Promise<any[]> {
   return wallpapers;
 }
 
-// Read categories.json as-is
+// Read categories.json as-is (fixed path)
 async function getCategoriesList(): Promise<any[]> {
-  const categoriesFile = join(Deno.cwd(), "data/categories/categories.json");
+  const categoriesFile = join(Deno.cwd(), "data/categories.json");
   try {
     const data = await Deno.readTextFile(categoriesFile);
     const json = JSON.parse(data);
@@ -126,7 +126,7 @@ router.get("/wallpapers/:category", async (ctx) => {
   }
 });
 
-// Categories endpoint
+// Categories endpoint (fixed path)
 router.get("/categories", async (ctx) => {
   const categories = await getCategoriesList();
   ctx.response.body = categories;
