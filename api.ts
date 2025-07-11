@@ -1,85 +1,71 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import { serveFile } from "https://deno.land/std@0.224.0/http/file_server.ts";
+import { Application, Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
+import { wallpapers as allWallpapers } from "./data.ts"; // Import all wallpapers
 
-// Utility to read and parse a JSON file
-async function readJson<T>(path: string): Promise<T> {
-  const data = await Deno.readTextFile(path);
-  return JSON.parse(data);
-}
+const app = new Application();
+const router = new Router();
 
-serve(async (req) => {
-  const url = new URL(req.url);
-
-  // Get all wallpapers in all categories (newest first)
-  if (url.pathname === "/wallpapers") {
-    const categories = await readJson<Array<{id: string}>>("./data/categories.json");
-    let allWallpapers: any[] = [];
-
-    for (const cat of categories) {
-      try {
-        const wallpapers = await readJson<any[]>(`./data/categories/${cat.id}.json`);
-        wallpapers.forEach(w => w.category = cat.id);
-        allWallpapers = allWallpapers.concat(wallpapers);
-      } catch {
-        // ignore if file does not exist
-      }
-    }
-
-    allWallpapers.sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
-
-    return new Response(JSON.stringify(allWallpapers), {
-      headers: { "Content-Type": "application/json" }
-    });
-  }
-
-  // Get all categories
-  if (url.pathname === "/categories") {
-    return await serveFile(req, "./data/categories.json");
-  }
-
-  // Get wallpapers for a specific category
-  const categoryMatch = url.pathname.match(/^\/categories\/([\w-]+)$/);
-  if (categoryMatch) {
-    const category = categoryMatch[1];
-    return await serveFile(req, `./data/categories/${category}.json`);
-  }
-
-  // Serve anime.json at /anime (legacy route, optional)
-  if (url.pathname === "/anime") {
-    return await serveFile(req, "./data/dmy/anime.json");
-  }
-
-  // Download endpoint: /download/:id returns the download info for a wallpaper
-  const downloadMatch = url.pathname.match(/^\/download\/([\w-]+)$/);
-  if (downloadMatch) {
-    const id = downloadMatch[1];
-    const categories = await readJson<Array<{id: string}>>("./data/categories.json");
-    for (const cat of categories) {
-      try {
-        const wallpapers = await readJson<any[]>(`./data/categories/${cat.id}.json`);
-        const found = wallpapers.find(w => w.id === id);
-        if (found && found.download) {
-          return new Response(
-            JSON.stringify({
-              download: found.download,
-              image: found.image,
-              title: found.title,
-              category: cat.id
-            }),
-            { headers: { "Content-Type": "application/json" } }
-          );
-        }
-      } catch {}
-    }
-    return new Response(
-      JSON.stringify({ error: "Wallpaper not found or no download available" }),
-      { status: 404, headers: { "Content-Type": "application/json" } }
-    );
-  }
-
-  // 404 for all other routes
-  return new Response("Not Found", { status: 404 });
+// Logger middleware
+app.use(async (ctx, next) => {
+  await next();
+  const rt = ctx.response.headers.get("X-Response-Time");
+  console.log(`${ctx.request.method} ${ctx.request.url} - ${rt}`);
 });
+
+// Timing middleware
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  await next();
+  const ms = Date.now() - start;
+  ctx.response.headers.set("X-Response-Time", `${ms}ms`);
+});
+
+// CORS middleware
+app.use(async (ctx, next) => {
+  ctx.response.headers.set("Access-Control-Allow-Origin", "*");
+  ctx.response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  ctx.response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  await next();
+});
+
+// Handle OPTIONS requests (preflight for CORS)
+app.use(router.routes());
+app.use(router.allowedMethods());
+
+router.options("/wallpapers", (ctx) => {
+  ctx.response.status = 204; // No Content
+});
+
+// Define the /wallpapers route with pagination
+router.get("/wallpapers", (ctx) => {
+  const query = ctx.request.url.searchParams;
+
+  // Parse 'page' and 'limit' from query parameters
+  // Default to page 1 and limit 20 if not provided or invalid
+  const page = parseInt(query.get("page") || "1");
+  const limit = parseInt(query.get("limit") || "20");
+
+  // Ensure page and limit are positive numbers
+  const safePage = Math.max(1, page);
+  const safeLimit = Math.max(1, limit);
+
+  // Calculate start and end indices for slicing
+  const startIndex = (safePage - 1) * safeLimit;
+  const endIndex = startIndex + safeLimit;
+
+  // Slice the wallpapers array to get the current page's data
+  const paginatedWallpapers = allWallpapers.slice(startIndex, endIndex);
+
+  ctx.response.body = paginatedWallpapers;
+  ctx.response.type = "application/json";
+});
+
+// Add a health check endpoint
+router.get("/health", (ctx) => {
+  ctx.response.body = { status: "ok" };
+  ctx.response.type = "application/json";
+});
+
+const PORT = 8000; // Your Deno API port
+console.log(`Server running on http://localhost:${PORT}`);
+await app.listen({ port: PORT });
+
