@@ -19,7 +19,6 @@ async function getAllWallpapers(): Promise<any[]> {
       const filePath = join(categoriesPath, file);
       const data = await Deno.readTextFile(filePath);
       const json = JSON.parse(data);
-      // If your JSON is an array, push all; if object, adjust accordingly
       if (Array.isArray(json)) {
         wallpapers = wallpapers.concat(json);
       } else if (json.wallpapers && Array.isArray(json.wallpapers)) {
@@ -32,12 +31,17 @@ async function getAllWallpapers(): Promise<any[]> {
   return wallpapers;
 }
 
-// Helper to get categories list
-async function getCategories(): Promise<any> {
+// Read categories.json as-is
+async function getCategoriesList(): Promise<any[]> {
   const categoriesFile = join(Deno.cwd(), "data/categories/categories.json");
   try {
     const data = await Deno.readTextFile(categoriesFile);
-    return JSON.parse(data);
+    const json = JSON.parse(data);
+    if (Array.isArray(json)) {
+      return json;
+    }
+    // If not array, wrap in array (fallback)
+    return [json];
   } catch (_e) {
     return [];
   }
@@ -69,10 +73,11 @@ app.use(async (ctx, next) => {
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-// OPTIONS preflight (for all endpoints)
+// OPTIONS preflight
 router.options("/wallpapers", (ctx) => { ctx.response.status = 204; });
 router.options("/categories", (ctx) => { ctx.response.status = 204; });
 router.options("/health", (ctx) => { ctx.response.status = 204; });
+router.options("/wallpapers/:category", (ctx) => { ctx.response.status = 204; });
 
 // Wallpapers endpoint (paginated, default 10 per page)
 router.get("/wallpapers", async (ctx) => {
@@ -88,13 +93,6 @@ router.get("/wallpapers", async (ctx) => {
   const paginatedWallpapers = allWallpapers.slice(startIndex, endIndex);
 
   ctx.response.body = paginatedWallpapers;
-  ctx.response.type = "application/json";
-});
-
-// Get all categories
-router.get("/categories", async (ctx) => {
-  const categories = await getCategories();
-  ctx.response.body = categories;
   ctx.response.type = "application/json";
 });
 
@@ -126,6 +124,13 @@ router.get("/wallpapers/:category", async (ctx) => {
     ctx.response.body = { error: "Category not found" };
     ctx.response.type = "application/json";
   }
+});
+
+// Categories endpoint
+router.get("/categories", async (ctx) => {
+  const categories = await getCategoriesList();
+  ctx.response.body = categories;
+  ctx.response.type = "application/json";
 });
 
 // Health check endpoint
