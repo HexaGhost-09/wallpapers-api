@@ -4,8 +4,17 @@ import { join } from "https://deno.land/std@0.207.0/path/mod.ts";
 const app = new Application();
 const router = new Router();
 
-// Helper to read all wallpapers from your JSON files
-async function getAllWallpapers(): Promise<any[]> {
+// Define a type for a Wallpaper to ensure consistency
+interface Wallpaper {
+  id: string;
+  category: string;
+  url: string;
+  thumbnail: string;
+  timestamp: string; // ISO 8601 string
+}
+
+// Helper to read all wallpapers from your JSON files and sort them by timestamp
+async function getAllWallpapers(): Promise<Wallpaper[]> {
   const categoriesPath = join(Deno.cwd(), "data/categories");
   const files = [
     "anime.json",
@@ -13,7 +22,7 @@ async function getAllWallpapers(): Promise<any[]> {
     "nature.json",
   ];
 
-  let wallpapers: any[] = [];
+  let wallpapers: Wallpaper[] = [];
   for (const file of files) {
     try {
       const filePath = join(categoriesPath, file);
@@ -25,9 +34,18 @@ async function getAllWallpapers(): Promise<any[]> {
         wallpapers = wallpapers.concat(json.wallpapers);
       }
     } catch (_e) {
-      // Skip missing/corrupt files
+      // Skip missing/corrupt files, log the error for debugging if needed
+      console.error(`Error reading or parsing file ${file}: ${_e.message}`);
     }
   }
+
+  // Sort wallpapers by timestamp in descending order (newest first)
+  wallpapers.sort((a, b) => {
+    const dateA = new Date(a.timestamp);
+    const dateB = new Date(b.timestamp);
+    return dateB.getTime() - dateA.getTime(); // Descending order
+  });
+
   return wallpapers;
 }
 
@@ -43,6 +61,7 @@ async function getCategoriesList(): Promise<any[]> {
     // If not array, wrap in array (fallback)
     return [json];
   } catch (_e) {
+    console.error(`Error reading or parsing categories.json: ${_e.message}`);
     return [];
   }
 }
@@ -79,7 +98,7 @@ router.options("/categories", (ctx) => { ctx.response.status = 204; });
 router.options("/health", (ctx) => { ctx.response.status = 204; });
 router.options("/wallpapers/:category", (ctx) => { ctx.response.status = 204; });
 
-// Wallpapers endpoint (paginated, default 10 per page)
+// Wallpapers endpoint (paginated, default 10 per page, sorted by timestamp)
 router.get("/wallpapers", async (ctx) => {
   const query = ctx.request.url.searchParams;
   const page = parseInt(query.get("page") || "1");
@@ -87,7 +106,7 @@ router.get("/wallpapers", async (ctx) => {
   const safePage = Math.max(1, page);
   const safeLimit = Math.max(1, limit);
 
-  const allWallpapers = await getAllWallpapers();
+  const allWallpapers = await getAllWallpapers(); // This now returns sorted wallpapers
   const startIndex = (safePage - 1) * safeLimit;
   const endIndex = startIndex + safeLimit;
   const paginatedWallpapers = allWallpapers.slice(startIndex, endIndex);
@@ -108,18 +127,27 @@ router.get("/wallpapers/:category", async (ctx) => {
   const filePath = join(Deno.cwd(), "data/categories", `${category}.json`);
   try {
     const data = await Deno.readTextFile(filePath);
-    let wallpapers: any[] = [];
+    let wallpapers: Wallpaper[] = [];
     const json = JSON.parse(data);
     if (Array.isArray(json)) {
       wallpapers = json;
     } else if (json.wallpapers && Array.isArray(json.wallpapers)) {
       wallpapers = json.wallpapers;
     }
+
+    // Sort wallpapers by timestamp in descending order for category-specific endpoint as well
+    wallpapers.sort((a, b) => {
+      const dateA = new Date(a.timestamp);
+      const dateB = new Date(b.timestamp);
+      return dateB.getTime() - dateA.getTime(); // Descending order
+    });
+
     const startIndex = (safePage - 1) * safeLimit;
     const endIndex = startIndex + safeLimit;
     ctx.response.body = wallpapers.slice(startIndex, endIndex);
     ctx.response.type = "application/json";
   } catch (_e) {
+    console.error(`Error fetching category ${category}: ${_e.message}`);
     ctx.response.status = 404;
     ctx.response.body = { error: "Category not found" };
     ctx.response.type = "application/json";
