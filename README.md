@@ -1,13 +1,13 @@
-# Wallora-2 Wallpapers API
+# Wallpapers API
 
-A simple Deno-powered API for wallpaper data.
+A simple Deno-powered API for wallpaper Official Used for [Wallora App](https://github.com/HexaGhost-09/wallora-2)
 
 ## Categories
 
 - **nature** – Beautiful landscapes and natural scenes
 - **cars** – Cool cars and automotive wallpapers
 - **anime** – Anime-themed wallpapers and artwork
-- **space** – Space, cosmos, and astronomy
+- **More Wallpapers Coming Soon**
 
 ## API Endpoints
 
@@ -28,9 +28,6 @@ A simple Deno-powered API for wallpaper data.
 
 - `GET /categories/anime`  
   Returns all wallpapers in the anime category.
-
-- `GET /categories/space`  
-  Returns all wallpapers in the space category.
 
 </details>
 
